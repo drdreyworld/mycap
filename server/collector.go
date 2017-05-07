@@ -3,20 +3,20 @@ package server
 import (
 	"fmt"
 	"mycap/libs/agrqueries"
-	"mycap/libs/agrqueries/countpertime"
 	"mycap/libs/client"
+	"mycap/libs/stat"
 	"time"
 )
 
 type Collector struct {
-	Queries      agrqueries.QueriesAgregated `json:"queries"`
-	CountPerTime countpertime.Counters
-
-	server *Server
+	Queries agrqueries.QueriesAgregated `json:"queries"`
+	Stat    stat.Stat
+	server  *Server
 }
 
 func (self *Collector) Collect() {
-	self.CountPerTime.Init()
+	self.Stat.Init()
+
 	for {
 		for key, agent := range self.server.Agents.Items {
 			if agent.LastCheckState && agent.LastCheckTime > time.Now().Unix()-3 {
@@ -35,7 +35,8 @@ func (self *Collector) Collect() {
 
 			if agent.LastCheckState {
 				for _, query := range queries.Result {
-					self.CountPerTime.Inc(query.Start.Unix())
+					self.Stat.FixInfo(query)
+
 					self.Queries.Add(agrqueries.CreateQuery(
 						fmt.Sprintf("%s", query.SrcIP),
 						fmt.Sprintf("%s:%d", query.DstIP, query.DstPort),

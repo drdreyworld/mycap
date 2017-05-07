@@ -14,8 +14,8 @@ func (self *Service) InitHandler() {
 		switch request.Method {
 		case "GetQueries":
 			return self.server.Collector.Queries, nil
-		case "GetCountPerTime":
-			return self.server.Collector.CountPerTime, nil
+		case "GetStat":
+			return self.server.Collector.Stat, nil
 		case "GetAgents":
 			return self.server.Agents.Items, nil
 		default:

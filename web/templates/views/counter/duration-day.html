@@ -1,0 +1,35 @@
+{{define "views/counter/duration-day"}}
+
+<div id="counter-duration-day">
+  <div class="flot-chart" style="height: 300px">
+      <div class="flot-chart-content" id="counter-duration-per-day"></div>
+  </div>
+
+  <script type="text/javascript">
+  	$(function() {
+
+    	$.plot($("#counter-duration-per-day"),{{ plotDurationAvg .stat.Duration.Day 3600}}, {
+    		  xaxis: {
+    				mode: "time",
+    				timeformat: "%d.%m"
+    		  },
+    			yaxis: {
+    					min: 0,
+              tickFormatter: function(v, axis) {
+  							return v.toFixed(axis.tickDecimals) + " s";
+  						}
+    			}
+    	});
+
+      setTimeout(function() {
+        $.get('/counters/duration-day', function(data) {
+          $('#counter-duration-day').replaceWith(data)
+        })
+      }, 1000)
+    });
+
+  </script>
+
+</div>
+
+{{end}}

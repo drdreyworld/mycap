@@ -1,0 +1,15 @@
+{{define "views/queries/tabs"}}
+<ul class="nav nav-pills">
+	<li role="presentation" {{if eq .tab "index" }} class="active" {{end}}>
+    <a href="/queries/index"><i class="glyphicon glyphicon-list-alt fa-fw"></i> Запросы</a>
+  </li>
+	<li role="presentation" {{if eq .tab "top-by-avg" }} class="active" {{end}}>
+    <a href="/queries/top-by-avg"><i class="glyphicon glyphicon-time fa-fw"></i> Топ по времени выполнения</a>
+  </li>
+	<li role="presentation" {{if eq .tab "top-by-count" }} class="active" {{end}}>
+    <a href="/queries/top-by-count"><i class="fa fa-bar-chart-o fa-fw"></i> Топ по частоте выполнения</a>
+  </li>
+</ul>
+
+<br>
+{{end}}

@@ -1,0 +1,25 @@
+{{define "views/queries/top-by-avg"}}
+
+{{template "views/queries/tabs" . }}
+
+<table class="table table-striped table-bordered table-hover dataTable no-footer" role="grid">
+	<thead>
+		<tr>
+			<th>From</th>
+			<th>To</th>
+			<th>Avg</th>
+			<th>Query</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{ range $key, $query := .queries }}
+		<tr>
+			<td>{{$query.From}}</td>
+			<td>{{$query.To}}</td>
+			<td>{{$query.Avg}}</td>
+			<td>{{$query.Query}}</td>
+		</tr>
+		{{ end }}
+	</tbody>
+</table>
+{{end}}

@@ -13,6 +13,10 @@ type Counter struct {
 	TimeMax   int64 `json:"time_max"`   // unixtime max + 1 шага (автоматически TimeZero + StepSize * StepCount)
 }
 
+func (self *Counter) IndexByTime(unixTime int64) int {
+	return int((unixTime - self.TimeZero) / self.StepSize)
+}
+
 func (self *Counter) Init(stepSize int64, stepCount int64) {
 	self.StepSize = stepSize
 	self.StepCount = stepCount
@@ -42,14 +46,14 @@ func (self *Counter) Init(stepSize int64, stepCount int64) {
 	}()
 }
 
-func (self *Counter) Inc(eventTime int64) {
+func (self *Counter) Inc(eventTime int64, incSize int64) {
 	eventIndex := (eventTime - self.TimeZero) / self.StepSize
 
 	if eventIndex < 0 || eventIndex > self.StepCount {
 		return
 	}
 
-	self.Items[eventIndex] += 1
+	self.Items[eventIndex] += incSize
 
 	if eventTime > self.TimeMax {
 		self.Items = append(self.Items[1:], 0)
@@ -72,9 +76,9 @@ func (self *Counters) Init() {
 	self.PerDay.Init(3600*24, 30)
 }
 
-func (self *Counters) Inc(eventTime int64) {
-	self.PerSec.Inc(eventTime)
-	self.PerMin.Inc(eventTime)
-	self.PerHour.Inc(eventTime)
-	self.PerDay.Inc(eventTime)
+func (self *Counters) Inc(eventTime int64, incSize int64) {
+	self.PerSec.Inc(eventTime, incSize)
+	self.PerMin.Inc(eventTime, incSize)
+	self.PerHour.Inc(eventTime, incSize)
+	self.PerDay.Inc(eventTime, incSize)
 }

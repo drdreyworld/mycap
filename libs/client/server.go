@@ -3,8 +3,8 @@ package client
 import (
 	"mycap/agent"
 	"mycap/libs/agrqueries"
-	"mycap/libs/agrqueries/countpertime"
 	"mycap/libs/jsonrpc"
+	"mycap/libs/stat"
 )
 
 type ServerClient struct {
@@ -23,14 +23,14 @@ func (self *ServerClient) GetQueries() (GetQueriesFromServerResponse, error) {
 	return res, err
 }
 
-type GetCountPerTimeFromServerResponse struct {
+type GetStatFromServerResponse struct {
 	jsonrpc.JsonRpcResponse
-	Result countpertime.Counters `json:"result"`
+	Result stat.Stat `json:"result"`
 }
 
-func (self *ServerClient) GetCountPerTime() (GetCountPerTimeFromServerResponse, error) {
-	res := GetCountPerTimeFromServerResponse{}
-	err := self.Call("GetCountPerTime", nil, &res)
+func (self *ServerClient) GetStat() (GetStatFromServerResponse, error) {
+	res := GetStatFromServerResponse{}
+	err := self.Call("GetStat", nil, &res)
 
 	return res, err
 }

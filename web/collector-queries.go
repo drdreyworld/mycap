@@ -2,15 +2,15 @@ package web
 
 import (
 	"mycap/libs/agrqueries"
-	"mycap/libs/agrqueries/countpertime"
 	"mycap/libs/client"
+	"mycap/libs/stat"
 	"time"
 )
 
 type QueriesCollector struct {
-	server       *Server
-	queries      agrqueries.QueriesAgregated
-	countPerTime countpertime.Counters
+	server  *Server
+	queries agrqueries.QueriesAgregated
+	stat    stat.Stat
 }
 
 func (self *QueriesCollector) Collect() {
@@ -28,10 +28,10 @@ func (self *QueriesCollector) Collect() {
 		}()
 
 		func() {
-			response, err := cli.GetCountPerTime()
+			response, err := cli.GetStat()
 
 			if err == nil && response.Error.Code == 0 {
-				self.countPerTime = response.Result
+				self.stat = response.Result
 			}
 		}()
 
