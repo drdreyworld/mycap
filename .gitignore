@@ -24,3 +24,7 @@ _testmain.go
 *.prof
 
 bin/*
+logs/*
+
+!bin/.gitkeep
+!logs/.gitkeep
