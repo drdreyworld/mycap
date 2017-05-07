@@ -23,6 +23,7 @@ type ProcessInfo struct {
 	Config string `json:"config"`
 	Exec   string `json:"exec"`
 	Pidf   string `json:"pidf"`
+	Logf   string `json:"logf"`
 }
 
 type ProcessesInfo map[string]ProcessInfo
@@ -81,12 +82,17 @@ func (self *Tool) StartProcess(process string, pinfo ProcessInfo) {
 	} else {
 		log.Printf("start %s\n", process)
 
-		cmd := exec.Command(pinfo.Exec, "-config", pinfo.Config)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stdout
-
-		err := cmd.Start()
+		logfile, err := os.Create(pinfo.Logf)
 		if err != nil {
+			panic(err)
+		}
+		defer logfile.Close()
+
+		cmd := exec.Command(pinfo.Exec, "-config", pinfo.Config)
+		cmd.Stdout = logfile
+		cmd.Stderr = logfile
+
+		if err := cmd.Start(); err != nil {
 			log.Fatal(err)
 		}
 

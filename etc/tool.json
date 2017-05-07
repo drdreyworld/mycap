@@ -3,19 +3,22 @@
     "agent" : {
       "config" : "./../etc/agent.json",
   		"exec"   : "./agent",
-  		"pidf"   : "/var/run/mycap-agent.pid"
+  		"pidf"   : "/var/run/mycap-agent.pid",
+      "logf"   : "../logs/agent.log"
     },
 
     "server" : {
       "config" : "./../etc/server.json",
   		"exec"   : "./server",
-  		"pidf"   : "/var/run/mycap-server.pid"
+  		"pidf"   : "/var/run/mycap-server.pid",
+      "logf"   : "../logs/server.log"
     },
 
     "web" : {
       "config" : "./../etc/web.json",
   		"exec"   : "./web",
-  		"pidf"   : "/var/run/mycap-web.pid"
+  		"pidf"   : "/var/run/mycap-web.pid",
+      "logf"   : "../logs/web.log"
     }
   }
 }
