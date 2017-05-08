@@ -10,7 +10,7 @@ import (
 
 type Collector struct {
 	Queries agrqueries.QueriesAgregated `json:"queries"`
-	Stat    stat.Stat
+	Stat    stat.Stat                   `json:"stat"`
 	server  *Server
 }
 

@@ -2,8 +2,18 @@ package duration
 
 type Items []Item
 
-func (self *Items) Rotate() {
-	*self = append((*self)[1:], Item{0, 0, 0})
+func (self *Items) Rotate(n int) {
+	if n > 0 {
+		capacity := cap(*self)
+		values := make([]Item, capacity, capacity)
+
+		if n < capacity {
+			copy(values, (*self)[n:])
+		}
+
+		*self = values
+	}
+
 }
 
 type Item struct {

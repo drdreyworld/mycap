@@ -3,17 +3,18 @@ package rps
 import "time"
 
 type Counter struct {
-	Values []int64 `json:"values"`
-	Hour   Items   `json:"hour"`
-	Day    Items   `json:"day"`
-	Month  Items   `json:"month"`
+	Values Values `json:"values"`
+	Hour   Items  `json:"hour"`
+	Day    Items  `json:"day"`
+	Month  Items  `json:"month"`
+	Time   int64  `json:"time"`
 }
 
 func (self *Counter) Init() {
-	self.Values = make([]int64, 60, 60)
-	self.Hour = make([]Item, 60, 60)
-	self.Day = make([]Item, 24, 24)
-	self.Month = make([]Item, 30, 30)
+	self.Values = make(Values, 60, 60)
+	self.Hour = make(Items, 60, 60)
+	self.Day = make(Items, 24, 24)
+	self.Month = make(Items, 30, 30)
 
 	go func() {
 		for {
@@ -26,14 +27,16 @@ func (self *Counter) Init() {
 func (self *Counter) Inc(eventTime int64, value int64) {
 	index := int(time.Now().Unix() - eventTime)
 
-	if index > 0 && index < len(self.Values) {
+	len_values := len(self.Values)
 
-		self.Values[60-index] += value
+	if index > 0 && index < len_values {
+
+		self.Values[len_values-index] += value
 
 		self.Hour[len(self.Hour)-1].Calc(
-			self.Values[60-index],
-			self.Values[60-index],
-			self.Values[60-index],
+			self.Values[len_values-index],
+			self.Values[len_values-index],
+			self.Values[len_values-index],
 		)
 
 		self.Day[len(self.Day)-1].Calc(
@@ -51,17 +54,27 @@ func (self *Counter) Inc(eventTime int64, value int64) {
 }
 
 func (self *Counter) Tick() {
-	self.Values = append(self.Values[1:], 0)
+	if self.Time == 0 {
+		self.Time = time.Now().Unix() - 1
+	}
+
+	sleep := time.Now().Unix() - self.Time
+	self.Time = time.Now().Unix()
+
+	self.Values.Rotate(int(sleep))
+	self.Hour.Rotate(int(sleep / 60))
+	self.Day.Rotate(int(sleep / 3600))
+	self.Month.Rotate(int(sleep / 86400))
 
 	if time.Now().Second() == 0 {
-		self.Hour.Rotate()
+		self.Hour.Rotate(1)
 	}
 
 	if time.Now().Minute() == 0 {
-		self.Hour.Rotate()
+		self.Day.Rotate(1)
 	}
 
 	if time.Now().Hour() == 0 {
-		self.Hour.Rotate()
+		self.Month.Rotate(1)
 	}
 }

@@ -1,11 +1,11 @@
 {{define "views/dashboard/index"}}
-  {{template "views/counter/rt-data"}}
+  {{template "views/counter/rt-data" . }}
   <div class="panel panel-default">
     <div class="panel-heading">Показатели за последний час</div>
     <div class="panel-body">
       <div class="row">
-        <div class="col-sm-6">{{template "views/counter/rps-min"}}</div>
-        <div class="col-sm-6">{{template "views/counter/duration-min"}}</div>
+        <div class="col-sm-6">{{template "views/counter/rps-min" . }}</div>
+        <div class="col-sm-6">{{template "views/counter/duration-min" . }}</div>
       </div>
     </div>
   </div>
@@ -14,8 +14,8 @@
     <div class="panel-heading">Показатели за 24 часа</div>
     <div class="panel-body">
       <div class="row">
-        <div class="col-sm-6">{{template "views/counter/rps-hour"}}</div>
-        <div class="col-sm-6">{{template "views/counter/duration-hour"}}</div>
+        <div class="col-sm-6">{{template "views/counter/rps-hour" . }}</div>
+        <div class="col-sm-6">{{template "views/counter/duration-hour" . }}</div>
       </div>
     </div>
   </div>
@@ -24,8 +24,8 @@
     <div class="panel-heading">Показатели за 30 дней</div>
     <div class="panel-body">
       <div class="row">
-        <div class="col-sm-6">{{template "views/counter/rps-day"}}</div>
-        <div class="col-sm-6">{{template "views/counter/duration-day"}}</div>
+        <div class="col-sm-6">{{template "views/counter/rps-day" . }}</div>
+        <div class="col-sm-6">{{template "views/counter/duration-day" . }}</div>
       </div>
     </div>
   </div>

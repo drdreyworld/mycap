@@ -11,6 +11,9 @@
       "top_cnt" : {
         "max_items" : 15
       }
+    },
+    "stat" : {
+      "datafile" : "./../data/stat.json"
     }
   },
   "agents" : {
