@@ -7,7 +7,10 @@
 		<tr>
 			<th>From</th>
 			<th>To</th>
-			<th>Avg</th>
+			<th>Min</th>
+			<th>Max</th>
+			<th>AVG</th>
+			<th>Count</th>
 			<th>Query</th>
 		</tr>
 	</thead>
@@ -16,7 +19,10 @@
 		<tr>
 			<td>{{$query.From}}</td>
 			<td>{{$query.To}}</td>
+			<td>{{$query.Min}}</td>
+			<td>{{$query.Max}}</td>
 			<td>{{$query.Avg}}</td>
+			<td>{{$query.Count}}</td>
 			<td>{{$query.Query}}</td>
 		</tr>
 		{{ end }}

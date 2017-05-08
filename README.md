@@ -1,7 +1,6 @@
 # mycap
 The MySql network traffic analyzer
 
-
 ## Prepare to install
 
 ### Ubuntu

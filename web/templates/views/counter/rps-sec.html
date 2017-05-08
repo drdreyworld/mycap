@@ -1,17 +1,17 @@
-{{define "views/counter/rps-day"}}
+{{define "views/counter/rps-sec"}}
 
-<div id="counter-rps-day">
+<div id="counter-rps-sec">
   <div class="flot-chart" style="height: 300px">
-      <div class="flot-chart-content" id="counter-rps-per-day"></div>
+      <div class="flot-chart-content" id="counter-rps-per-sec"></div>
   </div>
 
   <script type="text/javascript">
   	$(function() {
 
-  		$.plot($("#counter-rps-per-day"),{{plotRpsAvg .stat.Rps.Month 86400}}, {
+  		$.plot($("#counter-rps-per-sec"), [{ data: {{ plotRps .stat.Rps.Values }} }], {
   			  xaxis: {
   					mode: "time",
-  					timeformat: "%d.%m"
+  					timeformat: "%H:%M"
   			  },
   				yaxis: {
   						min: 0,
@@ -22,8 +22,8 @@
   		});
 
       setTimeout(function() {
-        $.get('/counters/rps-day', function(data) {
-          $('#counter-rps-day').replaceWith(data)
+        $.get('/counters/rps-sec', function(data) {
+          $('#counter-rps-sec').replaceWith(data)
         })
       }, 1000)
     });

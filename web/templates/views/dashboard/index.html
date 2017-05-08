@@ -1,5 +1,14 @@
 {{define "views/dashboard/index"}}
-  {{template "views/counter/rt-data" . }}
+  <div class="panel panel-default">
+    <div class="panel-heading">Показатели в реальном времени</div>
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-sm-6">{{template "views/counter/rps-sec" . }}</div>
+        <div class="col-sm-6">{{template "views/counter/duration-sec" . }}</div>
+      </div>
+    </div>
+  </div>
+
   <div class="panel panel-default">
     <div class="panel-heading">Показатели за последний час</div>
     <div class="panel-body">

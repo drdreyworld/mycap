@@ -1,17 +1,17 @@
-{{define "views/counter/duration-day"}}
+{{define "views/counter/duration-sec"}}
 
-<div id="counter-duration-day">
+<div id="counter-duration-sec">
   <div class="flot-chart" style="height: 300px">
-      <div class="flot-chart-content" id="counter-duration-per-day"></div>
+      <div class="flot-chart-content" id="counter-duration-per-sec"></div>
   </div>
 
   <script type="text/javascript">
   	$(function() {
 
-    	$.plot($("#counter-duration-per-day"),{{ plotDurationAvg .stat.Duration.Month 86400}}, {
+    	$.plot($("#counter-duration-per-sec"),{{ plotDurationAvg .stat.Duration.Values 1}}, {
     		  xaxis: {
     				mode: "time",
-    				timeformat: "%d.%m"
+    				timeformat: "%H:%M:%S"
     		  },
     			yaxis: {
     					min: 0,
@@ -22,8 +22,8 @@
     	});
 
       setTimeout(function() {
-        $.get('/counters/duration-day', function(data) {
-          $('#counter-duration-day').replaceWith(data)
+        $.get('/counters/duration-sec', function(data) {
+          $('#counter-duration-sec').replaceWith(data)
         })
       }, 1000)
     });

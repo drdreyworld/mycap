@@ -17,7 +17,7 @@ func (self *QueriesTopByCount) SortDesc() {
 
 func (self *QueriesTopByCount) Add(query Query) {
 	if i := self.Find(query); i != -1 {
-		self.Items[i].Count = query.Count
+		self.Items[i] = query
 	} else if self.MaxItems > 0 && self.Len() < self.MaxItems {
 		self.Items = append(self.Items, query)
 	} else if self.Len() == 0 {

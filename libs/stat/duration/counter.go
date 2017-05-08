@@ -3,15 +3,15 @@ package duration
 import "time"
 
 type Counter struct {
-	Values Values `json:"values"`
-	Hour   Items  `json:"hour"`
-	Day    Items  `json:"day"`
-	Month  Items  `json:"month"`
-	Time   int64  `json:"time"`
+	Values Items `json:"values"`
+	Hour   Items `json:"hour"`
+	Day    Items `json:"day"`
+	Month  Items `json:"month"`
+	Time   int64 `json:"time"`
 }
 
 func (self *Counter) Init() {
-	self.Values = make(Values, 60, 60)
+	self.Values = make(Items, 60, 60)
 	self.Hour = make(Items, 60, 60)
 	self.Day = make(Items, 24, 24)
 	self.Month = make(Items, 30, 30)
@@ -30,13 +30,12 @@ func (self *Counter) Inc(eventTime int64, value float64) {
 	len_values := len(self.Values)
 
 	if index > 0 && index < len_values {
-
-		self.Values[len_values-index] += value
+		self.Values[len_values-index].Calc(value, value, value)
 
 		self.Hour[len(self.Hour)-1].Calc(
-			self.Values[len_values-index],
-			self.Values[len_values-index],
-			self.Values[len_values-index],
+			self.Values[len_values-index].Min,
+			self.Values[len_values-index].Max,
+			self.Values[len_values-index].Avg,
 		)
 
 		self.Day[len(self.Day)-1].Calc(
