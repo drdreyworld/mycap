@@ -67,13 +67,13 @@ func (self *Counter) Tick() {
 
 	if time.Now().Second() == 0 {
 		self.Hour.Rotate(1)
-	}
 
-	if time.Now().Minute() == 0 {
-		self.Day.Rotate(1)
-	}
+		if time.Now().Minute() == 0 {
+			self.Day.Rotate(1)
 
-	if time.Now().Hour() == 0 {
-		self.Month.Rotate(1)
+			if time.Now().Hour() == 0 {
+				self.Month.Rotate(1)
+			}
+		}
 	}
 }

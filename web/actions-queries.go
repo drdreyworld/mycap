@@ -3,7 +3,10 @@ package web
 import (
 	"bytes"
 	"html/template"
+	"mycap/libs/agrqueries"
+	"mycap/libs/web/paginator"
 	"net/http"
+	"strconv"
 )
 
 func (self *Server) RegisterQueriesActions() {
@@ -15,9 +18,21 @@ func (self *Server) RegisterQueriesActions() {
 func (self *Server) ActionQueriesIndex(w http.ResponseWriter, r *http.Request) {
 	content := new(bytes.Buffer)
 
+	page, _ := strconv.Atoi(r.FormValue("page"))
+
+	pgn := paginator.Paginator{}
+	pgn.Create(page, 50, self.QueriesCollector.queries.Queries)
+
+	var items []agrqueries.Query
+
+	if pgn.ItemsStop > 0 {
+		items = self.QueriesCollector.queries.Queries.Items[pgn.ItemsStart:pgn.ItemsStop]
+	}
+
 	self.templates.ExecuteTemplate(content, "views/queries/index", map[string]interface{}{
-		"queries": self.QueriesCollector.queries.Queries.Items,
-		"tab":     "index",
+		"queries":   items,
+		"paginator": pgn,
+		"tab":       "index",
 	})
 
 	self.templates.ExecuteTemplate(w, "layout/main", map[string]interface{}{
