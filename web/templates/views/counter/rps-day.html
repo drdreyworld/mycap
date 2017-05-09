@@ -8,7 +8,7 @@
   <script type="text/javascript">
   	$(function() {
 
-  		$.plot($("#counter-rps-per-day"),{{plotRpsAvg .stat.Rps.Month 86400}}, {
+  		$.plot($("#counter-rps-per-day"),{{plotRpsAvg .stat.Rps.Month .stat.Rps.Time 86400}}, {
   			  xaxis: {
   					mode: "time",
   					timeformat: "%d.%m"

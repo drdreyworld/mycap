@@ -8,7 +8,7 @@
   <script type="text/javascript">
   	$(function() {
 
-    	$.plot($("#counter-duration-per-min"),{{ plotDurationAvg .stat.Duration.Hour 60}}, {
+    	$.plot($("#counter-duration-per-min"),{{ plotDurationAvg .stat.Duration.Hour .stat.Duration.Time 60}}, {
     		  xaxis: {
     				mode: "time",
     				timeformat: "%H:%M"

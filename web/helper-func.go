@@ -15,12 +15,14 @@ type PlotData []PlotItem
 type PlotDataMap map[string]interface{}
 type PlotDataMaps []PlotDataMap
 
-func RenderPlotRps(items []int64) template.JS {
+func RenderPlotRps(items []int64, zeroTime int64) template.JS {
 	result := make(PlotData, len(items))
 	_, offset := time.Now().In(time.Local).Zone()
 
+	zeroTime = zeroTime - int64(len(items)) + int64(offset)
+
 	for key, val := range items {
-		result[key] = PlotItem{1000 * (time.Now().Unix() + int64(offset) + (int64(key))), val}
+		result[key] = PlotItem{1000 * (zeroTime + int64(offset) + (int64(key))), val}
 	}
 
 	if result_js, err := json.Marshal(result); err == nil {
@@ -31,7 +33,7 @@ func RenderPlotRps(items []int64) template.JS {
 	}
 }
 
-func RenderPlotRpsAvg(items rps.Items, stepSize int64) template.JS {
+func RenderPlotRpsAvg(items rps.Items, zeroTime int64, stepSize int64) template.JS {
 	min := make(PlotData, len(items))
 	max := make(PlotData, len(items))
 	avg := make(PlotData, len(items))
@@ -44,7 +46,7 @@ func RenderPlotRpsAvg(items rps.Items, stepSize int64) template.JS {
 
 	_, offset := time.Now().In(time.Local).Zone()
 
-	zeroTime := time.Now().Unix() - int64(len(items))*stepSize + int64(offset)
+	zeroTime = zeroTime - int64(len(items))*stepSize + int64(offset)
 
 	for key, val := range items {
 		min[key] = PlotItem{1000 * (zeroTime + (int64(key) * stepSize)), val.Min}
@@ -72,26 +74,7 @@ func RenderPlotRpsAvg(items rps.Items, stepSize int64) template.JS {
 	}
 }
 
-func RenderPlotDuration(items []float64) template.JS {
-	result := make(PlotData, len(items))
-	_, offset := time.Now().In(time.Local).Zone()
-
-	for key, val := range items {
-		result[key] = PlotItem{
-			1000 * (time.Now().Unix() + int64(offset) + (int64(key))),
-			fmt.Sprintf("%.3f", val),
-		}
-	}
-
-	if result_js, err := json.Marshal(result); err == nil {
-		return template.JS(result_js)
-	} else {
-		log.Println(err)
-		return template.JS("")
-	}
-}
-
-func RenderPlotDurationAvg(items duration.Items, stepSize int64) template.JS {
+func RenderPlotDurationAvg(items duration.Items, zeroTime int64, stepSize int64) template.JS {
 	min := make(PlotData, len(items))
 	max := make(PlotData, len(items))
 	avg := make(PlotData, len(items))
@@ -104,7 +87,7 @@ func RenderPlotDurationAvg(items duration.Items, stepSize int64) template.JS {
 
 	_, offset := time.Now().In(time.Local).Zone()
 
-	zeroTime := time.Now().Unix() - int64(len(items))*stepSize + int64(offset)
+	zeroTime = zeroTime - int64(len(items))*stepSize + int64(offset)
 
 	for key, val := range items {
 		min[key] = PlotItem{1000 * (zeroTime + (int64(key) * stepSize)), fmt.Sprintf("%.3f", val.Min)}

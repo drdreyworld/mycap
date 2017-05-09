@@ -38,7 +38,6 @@ func (self *Server) InitTemplates() {
 	funcMap := template.FuncMap{
 		"plotRps":         RenderPlotRps,
 		"plotRpsAvg":      RenderPlotRpsAvg,
-		"plotDuration":    RenderPlotDuration,
 		"plotDurationAvg": RenderPlotDurationAvg,
 	}
 
