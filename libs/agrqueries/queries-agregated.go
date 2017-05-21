@@ -24,6 +24,12 @@ func (self *QueriesAgregated) Add(query Query) {
 			exists.Max = query.Max
 		}
 
+		if exists.RSize == 0 {
+			exists.RSize = query.RSize
+		} else {
+			exists.RSize = (exists.RSize + query.RSize) / 2
+		}
+
 		self.Queries.Items[pos] = exists
 
 		self.TopAvg.Add(exists)

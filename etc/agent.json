@@ -4,7 +4,7 @@
   "collector" : {
     "device" : "lo0",
 
-    "bpf_filter" : "tcp and port 3306",
+    "bpf_filter_port" : 3306,
     "txt_filter" : "",
 
     "max_query_len" : 9192

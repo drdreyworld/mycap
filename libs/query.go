@@ -23,5 +23,8 @@ type Query struct {
 
 	ID string `json:"id"`
 
-	WithResponse bool `json:"bool"`
+	ErrorCode     int    `json:"error_code"`
+	ErrorMessaget string `json:"error_message"`
+
+	ResponseSize int `json:"response_size"`
 }

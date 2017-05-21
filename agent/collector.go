@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"mycap/libs"
@@ -15,8 +14,9 @@ import (
 type Collector struct {
 	Device string `json:"device"`
 
-	BPFFilter string `json:"bpf_filter"`
-	TXTFilter string `json:"txt_filter"`
+	BPFFilter     string `json:"bpf_filter"`
+	BPFFilterPort int    `json:"bpf_filter_port"`
+	TXTFilter     string `json:"txt_filter"`
 
 	MaxQueryLen int `json:"max_query_len"`
 
@@ -35,6 +35,8 @@ func (self *Collector) Collect() {
 		log.Fatal(err)
 	}
 
+	self.BPFFilter = fmt.Sprintf("tcp and port %d", self.BPFFilterPort)
+	log.Println("self.BPFFilter", self.BPFFilter)
 	handle.SetBPFFilter(self.BPFFilter)
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
@@ -46,8 +48,9 @@ func (self *Collector) Collect() {
 	)
 
 	for packet := range packetSource.Packets() {
-		if applicationLayer := packet.ApplicationLayer(); applicationLayer != nil {
-
+		if applicationLayer := packet.ApplicationLayer(); applicationLayer == nil {
+			continue
+		} else {
 			if ipLayer, ok = packet.Layer(layers.LayerTypeIPv4).(*layers.IPv4); !ok {
 				continue
 			}
@@ -55,57 +58,119 @@ func (self *Collector) Collect() {
 				continue
 			}
 
-			playload := applicationLayer.Payload()
+			payload := applicationLayer.Payload()
 
-			if len(playload) < 5 {
+			if !isValidPacket(&payload) {
 				continue
 			}
 
-			length := int(playload[0]) | int(playload[1])<<8 | int(playload[2])<<16
+			if isQuery(&payload) {
+				ID := fmt.Sprintf("%s:%d@%s:%d", ipLayer.SrcIP, tcpLayer.SrcPort, ipLayer.DstIP, tcpLayer.DstPort)
+				// log.Println("isQuery", "ID", ID, getQueryText(&payload))
 
-			if length > len(playload)-4 {
-				continue
-			}
+				self.buffer[ID] = libs.Query{
 
-			ID := fmt.Sprintf("%s%d:%s%d\n", ipLayer.SrcIP, tcpLayer.SrcPort, ipLayer.DstIP, tcpLayer.DstPort)
+					Query: getQueryText(&payload),
+					Start: packet.Metadata().Timestamp,
 
-			if uint8(playload[4]) == 3 {
-				// is request
-				if self.isAllowedByFilter(&playload, length) {
-					self.buffer[ID] = libs.Query{
+					SrcIP: ipLayer.SrcIP,
+					DstIP: ipLayer.DstIP,
 
-						Query: string(playload[5 : length+4]),
-						Start: packet.Metadata().Timestamp,
+					SrcPort: tcpLayer.SrcPort,
+					DstPort: tcpLayer.DstPort,
 
-						SrcIP: ipLayer.SrcIP,
-						DstIP: ipLayer.DstIP,
-
-						SrcPort: tcpLayer.SrcPort,
-						DstPort: tcpLayer.DstPort,
-
-						ID: ID,
-					}
+					ID: ID,
 				}
 			} else {
-				// is response
+				ID := fmt.Sprintf("%s:%d@%s:%d", ipLayer.DstIP, tcpLayer.DstPort, ipLayer.SrcIP, tcpLayer.SrcPort)
+
 				if query, found := self.buffer[ID]; found {
 
 					query.ID = fmt.Sprintf(
-						"%s%d:%s%d:%d\n",
-						ipLayer.SrcIP, tcpLayer.SrcPort, ipLayer.DstIP, tcpLayer.DstPort, time.Now().UnixNano(),
+						"%s:%d@%s:%d %d\n",
+						ipLayer.DstIP, tcpLayer.DstPort, ipLayer.SrcIP, tcpLayer.SrcPort, time.Now().UnixNano(),
 					)
 					query.Stop = packet.Metadata().Timestamp
 					query.Duration = packet.Metadata().Timestamp.Sub(query.Start)
-					query.WithResponse = true
 
-					self.queries = append(self.queries, query)
-					delete(self.buffer, ID)
+					if isErr(&payload) {
+						// log.Println("IsErr", ID, "", query.Query)
+						query.ResponseSize = getLength(&payload)
+						query.ErrorCode, query.ErrorMessaget = getError(&payload)
+
+						self.queries = append(self.queries, query)
+						delete(self.buffer, ID)
+					} else if isOk(&payload) || isEOF(&payload) {
+						// log.Println("IsOk", ID, "", query.Query)
+						query.ResponseSize += (len(payload) - 5)
+
+						self.queries = append(self.queries, query)
+						delete(self.buffer, ID)
+					} else if getLength(&payload) == 1 {
+						// log.Println("Response len = 1", ID, "", query.Query)
+						query.ResponseSize += (len(payload) - 5)
+
+						self.queries = append(self.queries, query)
+						delete(self.buffer, ID)
+					} else {
+						log.Println("Not final result", ID, "", query.Query)
+						query.ResponseSize += (len(payload) - 5)
+
+						self.buffer[ID] = query
+					}
 				}
 			}
 		}
 	}
 }
 
-func (self *Collector) isAllowedByFilter(playload *[]byte, length int) bool {
-	return self.TXTFilter == "" || bytes.Contains(bytes.ToLower((*playload)[5:length+4]), bytes.ToLower([]byte(self.TXTFilter)))
+type tpayload []byte
+
+func isValidPacket(p *[]byte) bool {
+	return len((*p)) >= 5 && getLength(p) > 0
+}
+
+func getLength(p *[]byte) int {
+	return int((*p)[0]) | int((*p)[1])<<8 | int((*p)[2])<<16
+}
+
+func getCode(p *[]byte) byte {
+	return (*p)[4]
+}
+
+func getSequence(p *[]byte) byte {
+	return (*p)[3]
+}
+
+func isQuery(p *[]byte) bool {
+	return len(*p) == getLength(p)+4 && getCode(p) == 0x03
+}
+
+func getQueryText(p *[]byte) string {
+	return string((*p)[3+1+1 : 3+1+1+getLength(p)-1])
+}
+
+func isOk(p *[]byte) bool {
+	return getCode(p) == 0x00
+}
+
+func isErr(p *[]byte) bool {
+	return getCode(p) == 0xff
+}
+
+func isEOF(p *[]byte) bool {
+	return getCode(p) == 0xfe
+}
+
+func getError(p *[]byte) (code int, message string) {
+	code = int((*p)[5]) | int((*p)[6])<<8
+	message = string((*p)[3+1+1+2:])
+	// if capabilities & CLIENT_PROTOCOL_41 {
+	// https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_err_packet.html
+	// string[1] sql_state_marker 		# marker of the SQL state
+	// string[5] sql_state 						SQL state
+	// message = string((*p)[3+1+1+2   + 1 + 5:])
+	// }
+
+	return code, message
 }

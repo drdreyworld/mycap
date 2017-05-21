@@ -15,6 +15,7 @@ type Query struct {
 	Min   time.Duration
 	Max   time.Duration
 	Count int
+	RSize int
 }
 
 func (self *Query) GetQuery() string {
@@ -34,7 +35,7 @@ func (self *Query) GetHash() string {
 	return self.Hash
 }
 
-func CreateQuery(from string, to string, query string, duration time.Duration) Query {
+func CreateQuery(from string, to string, query string, rsize int, duration time.Duration) Query {
 	result := Query{
 		Query: query,
 		From:  from,
@@ -43,6 +44,7 @@ func CreateQuery(from string, to string, query string, duration time.Duration) Q
 		Min:   duration,
 		Max:   duration,
 		Count: 1,
+		RSize: rsize,
 	}
 	result.CalcHash()
 	return result

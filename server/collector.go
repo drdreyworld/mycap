@@ -41,6 +41,7 @@ func (self *Collector) Collect() {
 						fmt.Sprintf("%s", query.SrcIP),
 						fmt.Sprintf("%s:%d", query.DstIP, query.DstPort),
 						query.Query,
+						query.ResponseSize,
 						query.Duration,
 					))
 				}
